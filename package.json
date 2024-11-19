@@ -1,0 +1,15 @@
+{
+  "name": "telegram_bot",
+  "version": "1.0.0",
+  "description": "study telegram bot in practice",
+  "main": "index.js",
+  "scripts": {
+    "test": "tests"
+  },
+  "author": "alex_solianyk",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "nodemon": "^3.1.7"
+  }
+}
