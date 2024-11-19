@@ -4,7 +4,9 @@
   "description": "study telegram bot in practice",
   "main": "index.js",
   "scripts": {
-    "test": "tests"
+    "test": "tests",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "author": "alex_solianyk",
   "license": "ISC",
