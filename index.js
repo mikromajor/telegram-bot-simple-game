@@ -1,14 +1,8 @@
-const { stickers } = require("./constants");
+const { stickers, token } = require("./constants");
 const { gameOptions, gameOptionsPlayAgain } = require("./options");
 
 const BotApi = require("node-telegram-bot-api");
-
-const token = "7568259988:AAG3Z0VFQeFPDcdfshzsavnSJ8sZHKVUOYc";
-
 const bot = new BotApi(token, { polling: true });
-
-chats = {};
-
 bot.setMyCommands([
   {
     command: "/start",
@@ -22,13 +16,13 @@ bot.setMyCommands([
     command: "/game",
     description: "Simple communication game - Guess the number",
   },
-  {
-    command: "/playAgain",
-    description: "Play 'Guess the number game' again",
-  },
 ]);
 
+let attempts = 0;
+chats = {};
+
 const playGame = async (chatId) => {
+  attempts = 0;
   await bot.sendMessage(chatId, "Try to guess the number in three attempts.");
   const randomNumber = Math.floor(Math.random() * 10) + "";
   chats[chatId] = randomNumber;
@@ -43,18 +37,24 @@ function startBot() {
       await bot.sendSticker(chatId, stickers.botStart);
       return bot.sendMessage(chatId, "Hello, I'm BotAnika. Would you want to play with me? If - yes, enter the '/game'");
     }
-    if (message === "/game" || message === "/playAgain") {
+    if (message === "/game") {
       playGame(chatId);
+    }
+    if (message === "/help") {
+      await bot.sendSticker(chatId, stickers.botHelp);
+      return bot.sendMessage(chatId, "No,no,no. I don't have time for it :) Help yourself!");
     }
   });
   bot.on("callback_query", async (query) => {
     const chatId = query.message.chat.id;
     const data = query.data;
     const randomNumber = chats[chatId] ? chats[chatId] : "0";
-    await bot.sendMessage(chatId, `Your number is ${data}`);
-    console.log("data", data, "  randomNumber", randomNumber);
-    console.log("data", data, typeof data, "  randomNumber", randomNumber, typeof randomNumber);
 
+    if (data === "/playAgain") {
+      return playGame(chatId);
+    }
+
+    await bot.sendMessage(chatId, `Your ${++attempts} attempts and number is ${data}`, gameOptions);
     if (data === randomNumber) {
       await bot.sendSticker(chatId, stickers.botWin);
       return bot.sendMessage(chatId, "Congratulations! You've guessed the number correctly!", gameOptionsPlayAgain);
@@ -64,6 +64,10 @@ function startBot() {
     }
     if (chats[chatId] > data) {
       await bot.sendMessage(chatId, "Your guess is too low!");
+    }
+    if (attempts === 3) {
+      await bot.sendSticker(chatId, stickers.botFell);
+      return bot.sendMessage(chatId, "Sorry, you've exceeded the number of attempts. Game over!", gameOptionsPlayAgain);
     }
     if (data === "/") return bot.sendMessage(chatId, "Please enter your number from 0 to 10", gameOptions);
   });
@@ -94,7 +98,7 @@ const msgStructure = {
   entities: [{ offset: 0, length: 6, type: "bot_command" }],
 };
 
-const queryStucture = {
+const queryStructure = {
   id: "3661988262492355898",
   from: {
     id: 852623084,
