@@ -26,7 +26,7 @@ const playGame = async (chatId) => {
   await bot.sendMessage(chatId, "Try to guess the number in three attempts.");
   const randomNumber = Math.floor(Math.random() * 10) + "";
   chats[chatId] = randomNumber;
-  await bot.sendMessage(chatId, "Please enter your number from 0 to 10", gameOptions);
+  await bot.sendMessage(chatId, "Please enter your number from 0 to 9", gameOptions);
 };
 
 function startBot() {
@@ -50,83 +50,28 @@ function startBot() {
     const data = query.data;
     const randomNumber = chats[chatId] ? chats[chatId] : "0";
 
-    if (data === "/playAgain") {
-      return playGame(chatId);
-    }
+    if (data === "/playAgain") return playGame(chatId);
 
     await bot.sendMessage(chatId, `Your ${++attempts} attempts and number is ${data}`, gameOptions);
     if (data === randomNumber) {
       await bot.sendSticker(chatId, stickers.botWin);
       return bot.sendMessage(chatId, "Congratulations! You've guessed the number correctly!", gameOptionsPlayAgain);
     }
-    if (chats[chatId] < data) {
+    if (randomNumber < data) {
       await bot.sendMessage(chatId, "Your guess is too high!");
     }
-    if (chats[chatId] > data) {
+    if (randomNumber > data) {
       await bot.sendMessage(chatId, "Your guess is too low!");
     }
     if (attempts === 3) {
       await bot.sendSticker(chatId, stickers.botFell);
-      return bot.sendMessage(chatId, "Sorry, you've exceeded the number of attempts. Game over!", gameOptionsPlayAgain);
+      return bot.sendMessage(
+        chatId,
+        `Sorry, you've exceeded the number of attempts. Game over! I guessed ${randomNumber}`,
+        gameOptionsPlayAgain
+      );
     }
-    if (data === "/") return bot.sendMessage(chatId, "Please enter your number from 0 to 10", gameOptions);
   });
 }
 
 startBot();
-
-//----------------------------------------------------------------
-const msgStructure = {
-  message_id: 10,
-  from: {
-    id: 852623084,
-    is_bot: false,
-    first_name: "Alex",
-    last_name: "Solianyk",
-    username: "AlexSolianyk",
-    language_code: "uk",
-  },
-  chat: {
-    id: 852623084,
-    first_name: "Alex",
-    last_name: "Solianyk",
-    username: "AlexSolianyk",
-    type: "private",
-  },
-  date: 1732126856,
-  text: "/start",
-  entities: [{ offset: 0, length: 6, type: "bot_command" }],
-};
-
-const queryStructure = {
-  id: "3661988262492355898",
-  from: {
-    id: 852623084,
-    is_bot: false,
-    first_name: "Alex",
-    last_name: "Solianyk",
-    username: "AlexSolianyk",
-    language_code: "uk",
-  },
-  message: {
-    message_id: 67,
-    from: {
-      id: 7458656190,
-      is_bot: true,
-      first_name: "mikromajor_curs",
-      username: "SAS_T_1000_bot",
-    },
-    chat: {
-      id: 852623084,
-      first_name: "Alex",
-      last_name: "Solianyk",
-      username: "AlexSolianyk",
-      type: "private",
-    },
-    date: 1732367659,
-    text: "Please enter your number from 0 to 10",
-    reply_markup: { inline_keyboard: [Array] },
-  },
-  chat_instance: "-3872188528998060335",
-  data: "1",
-};
